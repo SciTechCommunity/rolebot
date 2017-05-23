@@ -14,6 +14,7 @@ defmodule ED.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
+    [applications: [:discord_ex]]
     # Specify extra applications you'll use from Erlang/Elixir
     [extra_applications: [:logger]]
   end
