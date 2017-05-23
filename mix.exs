@@ -29,8 +29,6 @@ defmodule ED.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [
-      {:discord_ex, "~> 1.1.8"}
-    ]
+    [{:discord_ex, "~> 1.1.8"}]
   end
 end
