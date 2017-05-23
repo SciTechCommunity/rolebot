@@ -21,8 +21,9 @@ defmodule ED do
   
   def greet(conn, channel) do
     greeting
-    |> Enum.random
-    |> send_message channel, conn
+      |> Enum.random
+      |> send_message channel, conn
+      |> IO.inspect
   end
   
   def handle_event({:message_create, payload}, state) do
