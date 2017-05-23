@@ -27,8 +27,6 @@ defmodule ED do
   
   def handle_event({:message_create, payload}, state) do
     IO.puts "Received Message Create Event"
-    {cmd, msg} = 
-    {cmd, msg} |> IO.inspect
     case payload |> DiscordEx.Client.Helpers.MessageHelper.msg_command_parse do
       {"hello", _} -> greet state[:rest_client], payload["data"]["channel_id"]
     end
