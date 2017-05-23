@@ -24,7 +24,7 @@ defmodule ED do
 end
 
 
-token = IO.gets "Enter your bot token: "
+token = "Enter your bot token: " |> IO.gets |> String.trim
 {:ok, bot_client } = DiscordEx.Client.start_link(%{
 	token: token,
 	handler: ED
