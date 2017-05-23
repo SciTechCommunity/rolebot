@@ -16,11 +16,13 @@ defmodule ED do
     :world
   end
   
+  defp send_message(msg, ch, conn), do: DiscordEx.RestClient.Resources.Channel.send_message conn, ch, %{content: msg}
   defp greeting, do: ["Hello!", "Hi!", "Hey!", "Howdy!", "Hiya!", "HeyHi!", "Greetings!"]
+  
   def greet(conn, channel) do
     greeting
     |> Enum.random
-    |> &(DiscordEx.RestClient.Resources.Channel.send_message(conn, channel, %{content: &1})).()
+    |> send_message channel, conn
   end
   
   def handle_event({:message_create, payload}, state) do
