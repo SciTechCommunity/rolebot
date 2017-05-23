@@ -16,11 +16,20 @@ defmodule ED do
     :world
   end
   
+  defp greeting, do: ["Hello!", "Hi!", "Hey!", "Howdy!", "Hiya!", "HeyHi!", "Greetings!"]
+  def greet(conn, channel) do
+    greeting
+    |> Enum.random
+    |> &(DiscordEx.RestClient.Resources.Channel.send_message(conn, channel, %{content: &1})).()
+  end
+  
   def handle_event({:message_create, payload}, state) do
     IO.puts "Received Message Create Event"
-    payload
-      |> DiscordEx.Client.Helpers.MessageHelper.msg_command_parse
-      |> IO.inspect
+    {cmd, msg} = 
+    {cmd, msg} |> IO.inspect
+    case payload |> DiscordEx.Client.Helpers.MessageHelper.msg_command_parse do
+      {"hello", _} -> greet state[:rest_client], payload["data"]["channel_id"]
+    end
     {:ok, state}
   end
   
