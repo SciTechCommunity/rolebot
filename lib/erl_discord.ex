@@ -18,7 +18,9 @@ defmodule ED do
   
   def handle_event({:message_create, payload}, state) do
     IO.puts "Received Message Create Event"
-    IO.inspect <| DiscordEx.Client.Helpers.MessageHelper payload
+    payload
+      |> DiscordEx.Client.Helpers.MessageHelper
+      |> IO.inspect
     {:ok, state}
   end
   
