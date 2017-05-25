@@ -1,12 +1,15 @@
 defmodule Main do
-  def main(_args \\ []) do
-    token = "Enter your bot token: " |> IO.gets |> String.trim
-    HTTPoison.start
-    {:ok, bot_client } = DiscordEx.Client.start_link(%{
-      token: "Bot " <> token,
-      handler: ED
-    })
-    start
+  def main(args \\ []) do
+    case arg do
+      [ token | [] ] ->
+        HTTPoison.start
+        {:ok, bot_client } = DiscordEx.Client.start_link(%{
+          token: "Bot " <> String.trim(token),
+          handler: ED
+        })
+        start
+      [] -> IO.puts "Please start with a token"
+      _ -> IO.puts "Invalid command line args #{args}"
   end
   defp start do
     receive do
