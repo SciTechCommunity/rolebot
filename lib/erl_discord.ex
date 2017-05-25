@@ -44,9 +44,9 @@ defmodule ED do
     send_msg = fn msg -> send_message msg, payload["channel_id"], state[:rest_client] end
     valid_role = "The language #{role} is currently unsupported, " <>
     "please contact @shadow if you would like to add this language."
-    case get_role_color() do
+    case get_role_color role do
       {:ok, nil} -> send_msg.(valid_role)
-      {:ok, color} -> send_msg.("You have been added to the #{role} group!")
+      {:ok, _color} -> send_msg.("You have been added to the #{role} group!")
       :error -> send_msg.("There was an error with your request!")
     end
   end
