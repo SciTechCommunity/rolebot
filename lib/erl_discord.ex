@@ -26,7 +26,7 @@ defmodule ED do
       |> IO.inspect
   end
   
-  defp _get_colors do
+  defp get_colors do
     { colors, _ } = Code.eval_file "colors.exs", "lib"
     colors
   end
@@ -34,7 +34,7 @@ defmodule ED do
   def add_member_role(role, state, payload) do
     format = fn x -> x |> URI.encode_www_form |> String.upcase |> String.to_atom end
     case Process.get :colors do
-      nil -> :colors |> Process.put get_colors
+      nil -> Process.put :colors, get_colors
       colors when Kernel.is_map(colors) -> IO.inspect { Map.get(colors, format.(role)), colors, payload }
       idek -> IO.inspect idek
     end
@@ -43,8 +43,8 @@ defmodule ED do
   def handle_event({:message_create, payload}, state) do
     IO.puts "Received Message Create Event"
     case payload |> DiscordEx.Client.Helpers.MessageHelper.msg_command_parse do
-      {"hello", _} -> greet state[:rest_client], payload[:data]["channel_id"]
-      {"add", "role " <> role} -> add_member_role role, state[:rest_client], payload[:data]
+      { "hello", _ } -> greet state[:rest_client], payload[:data]["channel_id"]
+      { "add", "role " <> role } -> add_member_role role, state[:rest_client], payload[:data]
       other -> other |> IO.inspect
     end
     {:ok, state}
