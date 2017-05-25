@@ -1,6 +1,6 @@
 defmodule Main do
   def main(args \\ []) do
-    case arg do
+    case args do
       [ token | [] ] ->
         HTTPoison.start
         {:ok, bot_client } = DiscordEx.Client.start_link(%{
