@@ -26,7 +26,7 @@ defmodule ED do
       |> IO.inspect
   end
   
-  def add_member_role(role, state, payload), do
+  def add_member_role(role, state, payload) do
     format = fn x -> x |> URI.encode_www_form |> String.upcase end
     case Process.get :colors do
       nil -> Process.put :colors, Code.eval_file "colors.exs", "lib"
