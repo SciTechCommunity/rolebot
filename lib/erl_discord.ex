@@ -13,11 +13,25 @@ defmodule ED do
       |> IO.inspect
   end
   
+  defp language_role_help(conn, ch) do
+    send_message """
+    ***#{_greet()|> Enum.random}***
+    So you want to add a language role?
+    It's simple! all you have to do is type
+    `!add role <language>` where language is
+    the language you would like to add!
+    To get a full list of languages @
+    ```
+    https://github.com/ShadowfeindX/erl_discord
+    ```
+    """, ch, conn
+  end
+  
   defp get_colors do
     { colors, _ } = Code.eval_file "colors.exs", "lib"
     colors
   end
-  def get_role_color(role) do
+  defp get_role_color(role) do
     format = fn x -> x |> URI.encode_www_form |> String.upcase |> String.to_atom end
     color = case Process.get :colors do
       nil ->
@@ -29,7 +43,7 @@ defmodule ED do
     end
     color
   end
-  def add_language_role(role, role_color, state, payload) do
+  defp add_language_role(role, role_color, state, payload) do
     send_msg = fn msg -> send_message msg, payload["channel_id"], state[:rest_client] end
     no_role = "The language #{role} is currently unsupported, " <>
     "please contact @shadow if you would like to add this language."
@@ -42,7 +56,6 @@ defmodule ED do
           |> Enum.find(fn r -> String.upcase(r["name"]) == String.upcase(role) end) do
           nil -> 
             add_new_role state[:rest_client], guild[:guild_id], role, color
-              |> IO.inspect 
             add_language_role role, role_color, state, payload
           r -> add_member_role state[:rest_client], guild[:guild_id], payload["author"]["id"], r["id"]
         end |> IO.inspect
@@ -55,6 +68,7 @@ defmodule ED do
     IO.puts "Received Message Create Event"
     case payload |> DiscordEx.Client.Helpers.MessageHelper.msg_command_parse do
       { "hello", _ } -> greet state[:rest_client], payload[:data]["channel_id"]
+      { "roles", _ } -> language_role_help state[:rest_client], payload[:data]["channel_id"]
       { "add", "role " <> role } ->
         params = [role, role |> get_role_color, state, payload[:data]]
         spawn ED, :add_language_role, params
