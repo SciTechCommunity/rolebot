@@ -34,7 +34,7 @@ defmodule ED do
     prime = fn _ -> get_role_color role end
     format = fn x -> x |> URI.encode_www_form |> String.upcase |> String.to_atom end
     color = case Process.get :colors do
-      nil -> Process.put :colors, get_colors |> prime.()
+      nil -> Process.put :colors, get_colors
       colors when Kernel.is_map(colors) -> {:ok, colors |> Map.get format.(role) }
       _ -> :error
     end
@@ -48,7 +48,7 @@ defmodule ED do
       {:ok, nil} -> send_msg.(valid_role)
       {:ok, _color} -> send_msg.("You have been added to the #{role} group!")
       :error -> send_msg.("There was an error with your request!")
-    end
+    end |> IO.inspect
   end
   
   def handle_event({:message_create, payload}, state) do
