@@ -35,12 +35,10 @@ defmodule ED do
     case get_role_color role do
       {:ok, nil} ->
         [guild | _] = state[:guilds]
-        spawn fn ->
-          state[:rest_client]
-            |> get_guild_roles(guild[:guild_id])
-            |> IO.inspect
-        end
-          send_msg.(valid_role)
+        state[:rest_client]
+          |> get_guild_roles(guild[:guild_id])
+          |> IO.inspect
+        send_msg.(valid_role)
       {:ok, _color} -> send_msg.("You have been added to the #{role} group!")
       :error -> send_msg.("There was an error with your request!")
     end |> IO.inspect
