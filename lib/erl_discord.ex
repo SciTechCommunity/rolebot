@@ -34,7 +34,7 @@ defmodule ED do
     end
     case Process.get :colors do
       nil -> Process.put :colors, (Code.eval_file "colors.exs", "lib")
-      colors -> IO.inspect {colors |> Map.fetch(format.(role)) |> get_color, colors, payload}
+      colors -> IO.inspect {colors |> Map.fetch(format.(role)) |> get_color.(), colors, payload}
     end
   end
   
