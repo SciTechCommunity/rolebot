@@ -1,22 +1,8 @@
 defmodule ED do
-  @moduledoc """
-  Documentation for ED.
-  """
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> ED.hello
-      :world
-
-  """
-  def hello do
-    :world
-  end
-  
   defp send_message(msg, ch, conn), do: DiscordEx.RestClient.Resources.Channel.send_message conn, ch, %{content: msg}
+  defp add_member_role(conn), do: DiscordEx.RestClient.resource conn, :put, "/guilds/#{guild_id}/members/#{user_id}/roles/#{role_id}", %{}
+  defp get_guild_roles(conn, guild), do: DiscordEx.RestClient.Guild.roles conn, guild
   
   defp _greet, do: ["Hello!", "Hi!", "Hey!", "Howdy!", "Hiya!", "HeyHi!", "Greetings!"]
   def greet(conn, channel) do
@@ -42,12 +28,19 @@ defmodule ED do
     end
     color
   end
-  def add_member_role(role, client, payload) do
-    send_msg = fn msg -> send_message msg, payload["channel_id"], client end
+  def add_language_role(role, state, payload) do
+    send_msg = fn msg -> send_message msg, payload["channel_id"], state[:rest_client] end
     valid_role = "The language #{role} is currently unsupported, " <>
     "please contact @shadow if you would like to add this language."
     case get_role_color role do
-      {:ok, nil} -> send_msg.(valid_role)
+      {:ok, nil} ->
+        [guild | _] = state[:guilds]
+        spawn fn ->
+          state[:rest_client]
+            |> get_guild_roles(guild[:guild_id])
+            |> IO.inspect
+        end
+          send_msg.(valid_role)
       {:ok, _color} -> send_msg.("You have been added to the #{role} group!")
       :error -> send_msg.("There was an error with your request!")
     end |> IO.inspect
@@ -57,7 +50,7 @@ defmodule ED do
     IO.puts "Received Message Create Event"
     case payload |> DiscordEx.Client.Helpers.MessageHelper.msg_command_parse do
       { "hello", _ } -> greet state[:rest_client], payload[:data]["channel_id"]
-      { "add", "role " <> role } -> add_member_role role, state[:rest_client], payload[:data]
+      { "add", "role " <> role } -> add_language_role role, state, payload[:data]
       other -> other
     end
     {:ok, state}
