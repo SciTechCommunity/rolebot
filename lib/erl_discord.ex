@@ -2,7 +2,7 @@ defmodule ED do
 
   defp send_message(msg, ch, conn), do: DiscordEx.RestClient.Resources.Channel.send_message conn, ch, %{content: msg}
   defp add_member_role(conn), do: DiscordEx.RestClient.resource conn, :put, "/guilds/#{guild_id}/members/#{user_id}/roles/#{role_id}", %{}
-  defp get_guild_roles(conn, guild), do: DiscordEx.RestClient.Guild.roles conn, guild
+  defp get_guild_roles(conn, guild), do: DiscordEx.RestClient.Resources.Guild.roles conn, guild
   
   defp _greet, do: ["Hello!", "Hi!", "Hey!", "Howdy!", "Hiya!", "HeyHi!", "Greetings!"]
   def greet(conn, channel) do
