@@ -38,7 +38,7 @@ defmodule ED do
         [guild | _] = state[:guilds]
         case state[:rest_client]
           |> get_guild_roles(guild[:guild_id])
-          |> Enum.find(fn r -> r["name"] == role) do
+          |> Enum.find(fn r -> r["name"] == role end) do
           nil -> IO.puts "No role found!"
           r -> add_member_role state[:rest_client], guild[:guild_id], payload["author"]["id"], r["id"]
         end |> IO.inspect
