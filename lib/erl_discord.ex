@@ -41,7 +41,7 @@ defmodule ED do
           |> Enum.find(fn r -> r["name"] == role) do
           nil -> IO.puts "No role found!"
           r -> add_member_role state[:rest_client], guild[:guild_id], payload["author"]["id"], r["id"]
-          |> IO.inspect
+        end |> IO.inspect
       send_msg.("You have been added to the #{role} group!")
       :error -> send_msg.("There was an error with your request!")
     end |> IO.inspect
