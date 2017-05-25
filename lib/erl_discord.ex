@@ -39,7 +39,7 @@ defmodule ED do
         [guild | _] = state[:guilds]
         case state[:rest_client]
           |> get_guild_roles(guild[:guild_id])
-          |> Enum.find(fn r -> String.upcase r["name"] == String.upcase role end) do
+          |> Enum.find(fn r -> String.upcase(r["name"]) == String.upcase(role) end) do
           nil -> 
             add_new_role state[:rest_client], guild[:guild_id], role, color
             add_language_role role, role_color, state, payload
