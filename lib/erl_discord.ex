@@ -30,7 +30,6 @@ defmodule ED do
     { colors, _ } = Code.eval_file "colors.exs", "lib"
     colors
   end
-  
   def get_role_color(role) do
     prime = fn _ -> get_role_color role end
     format = fn x -> x |> URI.encode_www_form |> String.upcase |> String.to_atom end
@@ -42,13 +41,13 @@ defmodule ED do
     color
   end
   def add_member_role(role, state, payload) do
-    _send = fn msg -> send_message msg, payload["channel_id"], state[:rest_client] end
+    send_msg = fn msg -> send_message msg, payload["channel_id"], state[:rest_client] end
     valid_role = "The language #{role} is currently unsupported, " <>
     "please contact @shadow if you would like to add this language."
-    case get_valid_roles do
-      {:ok, nil} -> _send.(valid_role)
-      {:ok, color} -> _send.("You have been added to the #{role} group!")
-      :error -> _send.("There was an error with your request!")
+    case get_role_color() do
+      {:ok, nil} -> send_msg.(valid_role)
+      {:ok, color} -> send_msg.("You have been added to the #{role} group!")
+      :error -> send_msg.("There was an error with your request!")
     end
   end
   
