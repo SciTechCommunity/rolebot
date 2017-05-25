@@ -40,8 +40,8 @@ defmodule ED do
     end
     color
   end
-  def add_member_role(role, state, payload) do
-    send_msg = fn msg -> send_message msg, payload["channel_id"], state[:rest_client] end
+  def add_member_role(role, client, payload) do
+    send_msg = fn msg -> send_message msg, payload["channel_id"], client end
     valid_role = "The language #{role} is currently unsupported, " <>
     "please contact @shadow if you would like to add this language."
     case get_role_color role do
