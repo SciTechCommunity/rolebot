@@ -35,7 +35,7 @@ defmodule ED do
     format = fn x -> x |> URI.encode_www_form |> String.upcase |> String.to_atom end
     color = case Process.get :colors do
       nil -> Process.put :colors, get_colors |> (&(get_role_color role)).()
-      colors when Kernel.is_map(colors) -> {:ok, Map.get colors, format.(role)}
+      colors when Kernel.is_map(colors) -> {:ok, Map.get(colors, format.(role))}
       _ -> :error
     end
     color
