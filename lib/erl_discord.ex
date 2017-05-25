@@ -21,7 +21,7 @@ defmodule ED do
     color = case Process.get :colors do
       nil ->
         Process.put :colors, get_colors()
-        {:ok, get_role_color role}
+        get_role_color role
       colors when Kernel.is_map(colors) ->
         {:ok, colors |> Map.get format.(role)}
       _ -> :error
