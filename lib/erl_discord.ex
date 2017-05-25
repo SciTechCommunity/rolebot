@@ -33,8 +33,9 @@ defmodule ED do
     no_role = "The language #{role} is currently unsupported, " <>
     "please contact @shadow if you would like to add this language."
     case get_role_color role do
-      {:ok, nil} -> send_msg.(no_role)
+      {:ok, nil} ->  send_msg.(no_role)
       {:ok, _color} ->
+        [guild | _] = state[:guilds]
         state[:rest_client]
           |> get_guild_roles(guild[:guild_id])
           |> IO.inspect
