@@ -57,7 +57,7 @@ defmodule ED do
       { "hello", _ } -> greet state[:rest_client], payload[:data]["channel_id"]
       { "add", "role " <> role } -> add_member_role role, state[:rest_client], payload[:data]
       other -> other
-    end |> IO.inspect
+    end
     {:ok, state}
   end 
   def handle_event({event, _payload}, state) do
