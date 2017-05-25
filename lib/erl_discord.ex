@@ -3,6 +3,7 @@ defmodule ED do
   defp send_message(msg, ch, conn), do: DiscordEx.RestClient.Resources.Channel.send_message conn, ch, %{content: msg}
   defp add_member_role(conn, guild_id, user_id, role_id), do: DiscordEx.RestClient.resource conn, :put, "/guilds/#{guild_id}/members/#{user_id}/roles/#{role_id}", %{}
   defp get_guild_roles(conn, guild), do: DiscordEx.RestClient.Resources.Guild.roles conn, guild
+  defp add_new_role(conn, guild_id, name, color), do: DiscordEx.RestClient.resource conn, :post, "/guilds/#{guild_id}/roles/", %{name: name, color: color}
   
   defp _greet, do: ["Hello!", "Hi!", "Hey!", "Howdy!", "Hiya!", "HeyHi!", "Greetings!"]
   def greet(conn, channel) do
@@ -28,18 +29,20 @@ defmodule ED do
     end
     color
   end
-  def add_language_role(role, state, payload) do
+  def add_language_role(role, role_color, state, payload) do
     send_msg = fn msg -> send_message msg, payload["channel_id"], state[:rest_client] end
     no_role = "The language #{role} is currently unsupported, " <>
     "please contact @shadow if you would like to add this language."
-    case get_role_color role do
+    case role_color do
       {:ok, nil} ->  send_msg.(no_role)
-      {:ok, _color} ->
+      {:ok, color} ->
         [guild | _] = state[:guilds]
         case state[:rest_client]
           |> get_guild_roles(guild[:guild_id])
           |> Enum.find(fn r -> r["name"] == role end) do
-          nil -> IO.puts "No role found!"
+          nil -> 
+            add_new_role state[:rest_client], guild[:guild_id], role, color
+            add_language_role role, state, payload
           r -> add_member_role state[:rest_client], guild[:guild_id], payload["author"]["id"], r["id"]
         end |> IO.inspect
       send_msg.("You have been added to the #{role} group!")
@@ -49,9 +52,12 @@ defmodule ED do
   
   def handle_event({:message_create, payload}, state) do
     IO.puts "Received Message Create Event"
+    
     case payload |> DiscordEx.Client.Helpers.MessageHelper.msg_command_parse do
       { "hello", _ } -> greet state[:rest_client], payload[:data]["channel_id"]
-      { "add", "role " <> role } -> add_language_role role, state, payload[:data]
+      { "add", "role " <> role } ->
+        params = [role, role |> get_role_color, state, payload[:data]]
+        spawn ED, :add_language_role, params
       other -> other
     end
     {:ok, state}
