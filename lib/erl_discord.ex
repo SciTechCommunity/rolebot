@@ -29,8 +29,8 @@ defmodule ED do
   def add_member_role(role, state, payload) do
     format = fn x -> x |> URI.encode_www_form |> String.upcase end
     case Process.get :colors do
-      nil -> Process.put :colors, (Code.eval_file "colors.exs", "lib")
-      colors -> IO.inspect {role, colors[:"#{format.(role)}"], payload}
+      nil -> Process.put :colors, Code.eval_file "colors.exs", "lib"
+      colors -> IO.inspect {role, colors, payload}
     end
   end
   
