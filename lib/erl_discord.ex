@@ -31,12 +31,23 @@ defmodule ED do
     colors
   end
   
-  def add_member_role(role, state, payload) do
+  def get_role_color(role) do
     format = fn x -> x |> URI.encode_www_form |> String.upcase |> String.to_atom end
-    case Process.get :colors do
-      nil -> Process.put :colors, get_colors
-      colors when Kernel.is_map(colors) -> IO.inspect { Map.get(colors, format.(role)), colors, payload }
-      idek -> IO.inspect idek
+    color = case Process.get :colors do
+      nil -> Process.put :colors, get_colors |> (&(get_role_color role)).()
+      colors when Kernel.is_map(colors) -> {:ok, Map.get colors, format.(role)}
+      _ -> :error
+    end
+    color
+  end
+  def add_member_role(role, state, payload) do
+    _send = fn msg -> send_message msg, payload["channel_id"], state[:rest_client] end
+    valid_role = "The language #{role} is currently unsupported, " <>
+    "please contact @shadow if you would like to add this language."
+    case get_valid_roles do
+      {:ok, nil} -> _send.(valid_role)
+      {:ok, color} -> _send.("You have been added to the #{role} group!")
+      :error -> _send.("There was an error with your request!")
     end
   end
   
@@ -45,8 +56,8 @@ defmodule ED do
     case payload |> DiscordEx.Client.Helpers.MessageHelper.msg_command_parse do
       { "hello", _ } -> greet state[:rest_client], payload[:data]["channel_id"]
       { "add", "role " <> role } -> add_member_role role, state[:rest_client], payload[:data]
-      other -> other |> IO.inspect
-    end
+      other -> other
+    end |> IO.inspect
     {:ok, state}
   end 
   def handle_event({event, _payload}, state) do
