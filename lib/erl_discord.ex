@@ -20,10 +20,8 @@ defmodule ED do
     It's simple! all you have to do is type
     `!add role <language>` where language is
     the language you would like to add!
-    To get a full list of languages @
-    ```
+    You can get a full list of languages @
     https://github.com/ShadowfeindX/erl_discord
-    ```
     """, ch, conn
   end
   
