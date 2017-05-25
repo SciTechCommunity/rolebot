@@ -31,11 +31,13 @@ defmodule ED do
     colors
   end
   def get_role_color(role) do
-    prime = fn _ -> get_role_color role end
     format = fn x -> x |> URI.encode_www_form |> String.upcase |> String.to_atom end
     color = case Process.get :colors do
-      nil -> Process.put :colors, get_colors
-      colors when Kernel.is_map(colors) -> {:ok, colors |> Map.get format.(role) }
+      nil ->
+        Process.put :colors, get_colors()
+        {:ok, get_role_color role}
+      colors when Kernel.is_map(colors) ->
+        {:ok, colors |> Map.get format.(role) }
       _ -> :error
     end
     color
