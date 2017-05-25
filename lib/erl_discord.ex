@@ -1,7 +1,7 @@
 defmodule ED do
 
   defp send_message(msg, ch, conn), do: DiscordEx.RestClient.Resources.Channel.send_message conn, ch, %{content: msg}
-  defp add_member_role(conn), do: DiscordEx.RestClient.resource conn, :put, "/guilds/#{guild_id}/members/#{user_id}/roles/#{role_id}", %{}
+  defp add_member_role(conn, guild_id, user_id, role_id), do: DiscordEx.RestClient.resource conn, :put, "/guilds/#{guild_id}/members/#{user_id}/roles/#{role_id}", %{}
   defp get_guild_roles(conn, guild), do: DiscordEx.RestClient.Resources.Guild.roles conn, guild
   
   defp _greet, do: ["Hello!", "Hi!", "Hey!", "Howdy!", "Hiya!", "HeyHi!", "Greetings!"]
@@ -23,7 +23,7 @@ defmodule ED do
         Process.put :colors, get_colors()
         {:ok, get_role_color role}
       colors when Kernel.is_map(colors) ->
-        {:ok, colors |> Map.get format.(role) }
+        {:ok, colors |> Map.get format.(role)}
       _ -> :error
     end
     color
@@ -36,8 +36,11 @@ defmodule ED do
       {:ok, nil} ->  send_msg.(no_role)
       {:ok, _color} ->
         [guild | _] = state[:guilds]
-        state[:rest_client]
+        case state[:rest_client]
           |> get_guild_roles(guild[:guild_id])
+          |> Enum.find(fn r -> r["name"] == role) do
+          nil -> IO.puts "No role found!"
+          r -> add_member_role state[:rest_client], guild[:guild_id], payload["author"]["id"], r["id"]
           |> IO.inspect
       send_msg.("You have been added to the #{role} group!")
       :error -> send_msg.("There was an error with your request!")
