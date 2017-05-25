@@ -42,6 +42,7 @@ defmodule ED do
           |> Enum.find(fn r -> String.upcase(r["name"]) == String.upcase(role) end) do
           nil -> 
             add_new_role state[:rest_client], guild[:guild_id], role, color
+              |> IO.inspect 
             add_language_role role, role_color, state, payload
           r -> add_member_role state[:rest_client], guild[:guild_id], payload["author"]["id"], r["id"]
         end |> IO.inspect
@@ -52,7 +53,6 @@ defmodule ED do
   
   def handle_event({:message_create, payload}, state) do
     IO.puts "Received Message Create Event"
-    
     case payload |> DiscordEx.Client.Helpers.MessageHelper.msg_command_parse do
       { "hello", _ } -> greet state[:rest_client], payload[:data]["channel_id"]
       { "add", "role " <> role } ->
