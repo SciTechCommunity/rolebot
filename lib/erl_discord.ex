@@ -26,11 +26,16 @@ defmodule ED do
       |> IO.inspect
   end
   
+  defp _get_colors do
+    {colors, _} = Code.eval_file "colors.exs", "lib"
+    colors
+  end
+  
   def add_member_role(role, state, payload) do
-    format = fn x -> x |> URI.encode_www_form |> String.upcase end
+    format = fn x -> x |> URI.encode_www_form |> String.upcase |> String.to_atom end
     case Process.get :colors do
-      nil -> Process.put :colors, (Code.eval_file "colors.exs", "lib")
-      colors when Kernel.is_map(colors) -> IO.inspect {Map.has_key?(colors, format.(role)), colors, payload}
+      nil -> :colors |> Process.put get_colors
+      colors when Kernel.is_map(colors) -> IO.inspect {colors |> Map.get format.(role), colors, payload}
       idek -> IO.inspect idek
     end
   end
