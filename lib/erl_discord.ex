@@ -42,7 +42,7 @@ defmodule ED do
           |> Enum.find(fn r -> r["name"] == role end) do
           nil -> 
             add_new_role state[:rest_client], guild[:guild_id], role, color
-            add_language_role role, state, payload
+            add_language_role role, role_color, state, payload
           r -> add_member_role state[:rest_client], guild[:guild_id], payload["author"]["id"], r["id"]
         end |> IO.inspect
       send_msg.("You have been added to the #{role} group!")
