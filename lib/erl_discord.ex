@@ -6,12 +6,7 @@ defmodule ED do
   defp add_new_role(conn, guild_id, name, color), do: DiscordEx.RestClient.resource conn, :post, "/guilds/#{guild_id}/roles", %{name: name, color: color}
   
   defp _greet, do: ["Hello!", "Hi!", "Hey!", "Howdy!", "Hiya!", "HeyHi!", "Greetings!"]
-  def greet(conn, channel) do
-    _greet()
-      |> Enum.random
-      |> send_message(channel, conn)
-      |> IO.inspect
-  end
+  def greet(conn, channel), do: _greet |> Enum.random |> send_message(channel, conn) |> IO.inspect
   
   defp language_role_help(conn, ch) do
     send_message """
@@ -43,6 +38,7 @@ defmodule ED do
   end
   def add_language_role(role, role_color, state, payload) do
     send_msg = fn msg -> send_message msg, payload["channel_id"], state[:rest_client] end
+    seek_role = fn r -> String.upcase(r["name"]) == String.upcase(role) end
     no_role = "The language #{role} is currently unsupported, " <>
     "please contact <@249991058132434945> if you would like to add this language."
     case role_color do
@@ -51,7 +47,7 @@ defmodule ED do
         [guild | _] = state[:guilds]
         case state[:rest_client]
           |> get_guild_roles(guild[:guild_id])
-          |> Enum.find(fn r -> String.upcase(r["name"]) == String.upcase(role) end) do
+          |> Enum.find(seek_role) do
           nil -> 
             add_new_role state[:rest_client], guild[:guild_id], role, color
             add_language_role role, role_color, state, payload
@@ -63,7 +59,6 @@ defmodule ED do
   end
   
   def handle_event({:message_create, payload}, state) do
-    IO.puts "Received Message Create Event"
     case payload |> DiscordEx.Client.Helpers.MessageHelper.msg_command_parse do
       { "hello", _ } -> greet state[:rest_client], payload[:data]["channel_id"]
       { "roles", _ } -> language_role_help state[:rest_client], payload[:data]["channel_id"]
@@ -71,7 +66,7 @@ defmodule ED do
         params = [role, role |> get_role_color, state, payload[:data]]
         spawn ED, :add_language_role, params
       other -> other
-    end
+    end |> IO.inspect
     {:ok, state}
   end 
   def handle_event({event, _payload}, state) do
