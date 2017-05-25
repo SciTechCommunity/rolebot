@@ -10,6 +10,7 @@ defmodule Main do
         start
       [] -> IO.puts "Please start with a token"
       _ -> IO.puts "Invalid command line args #{args}"
+    end
   end
   defp start do
     receive do
