@@ -26,7 +26,13 @@ defmodule ED do
       |> IO.inspect
   end
   
-  def add_member_role(role, state, payload), do: IO.inspect {role, state, payload}
+  def add_member_role(role, state, payload), do
+    format = fn x -> x |> URI.encode_www_form |> String.upcase end
+    case Process.get :colors do
+      nil -> Process.put :colors, Code.eval_file "colors.exs", "lib"
+      colors -> IO.inspect {role, colors[:"#{format.(role)}"], payload}
+    end
+  end
   
   def handle_event({:message_create, payload}, state) do
     IO.puts "Received Message Create Event"
