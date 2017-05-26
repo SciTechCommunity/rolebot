@@ -42,6 +42,7 @@ defmodule ED do
     no_role = "The language #{role} is currently unsupported, " <>
     "please contact <@249991058132434945> if you would like to add this language."
     case role_color do
+      :error -> send_msg.("There was an error with your request!")
       {:ok, nil} ->  send_msg.(no_role)
       {:ok, color} ->
         [guild | _] = state[:guilds]
@@ -51,10 +52,10 @@ defmodule ED do
           nil -> 
             add_new_role state[:rest_client], guild[:guild_id], role, color
             add_language_role role, role_color, state, payload
-          r -> add_member_role state[:rest_client], guild[:guild_id], payload["author"]["id"], r["id"]
+          r ->
+            add_member_role state[:rest_client], guild[:guild_id], payload["author"]["id"], r["id"]
+            send_msg.("You have been added to the #{role} group!")
         end |> IO.inspect
-      send_msg.("You have been added to the #{role} group!")
-      :error -> send_msg.("There was an error with your request!")
     end |> IO.inspect
   end
   
