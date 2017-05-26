@@ -55,8 +55,8 @@ defmodule ED do
           r ->
             add_member_role state[:rest_client], guild[:guild_id], payload["author"]["id"], r["id"]
             send_msg.("You have been added to the #{role} group!")
-        end |> IO.inspect
-    end |> IO.inspect
+        end
+    end
   end
   
   def handle_event({:message_create, payload}, state) do
