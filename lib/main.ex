@@ -7,15 +7,18 @@ defmodule Main do
           token: "Bot " <> String.trim(token),
           handler: ED
         })
-        start
+        Process.unlink bot_client
+        Process.monitor bot_client
+        start args
       [] -> IO.puts "Please start with a token"
       _ -> IO.puts "Invalid command line args #{args}"
     end
   end
-  defp start do
+  defp start(args) do
     receive do
+      {:DOWN, _, _, _} -> main args
       e -> IO.inspect e
     end
-    start
+    start args
   end
 end
