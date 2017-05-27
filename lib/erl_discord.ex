@@ -8,7 +8,7 @@ defmodule ED do
   defp _greet, do: ["Hello!", "Hi!", "Hey!", "Howdy!", "Hiya!", "HeyHi!", "Greetings!"]
   def greet(conn, channel), do: _greet |> Enum.random |> send_message(channel, conn) |> IO.inspect
   
-  defp welcome(payload) do
+  defp welcome(client, payload) do
     payload
   end
   
