@@ -1,6 +1,7 @@
 defmodule ED do
 
   defp send_message(msg, ch, conn), do: DiscordEx.RestClient.Resources.Channel.send_message conn, ch, %{content: msg}
+  defp delete_message(msg, ch, conn, do: DiscordEx.RestClient.Resources.Channel.delete_message conn, ch, msg
   defp add_member_role(conn, guild_id, user_id, role_id), do: DiscordEx.RestClient.resource conn, :put, "/guilds/#{guild_id}/members/#{user_id}/roles/#{role_id}", %{}
   defp get_guild_roles(conn, guild), do: DiscordEx.RestClient.Resources.Guild.roles conn, guild
   defp add_new_role(conn, guild_id, name, color), do: DiscordEx.RestClient.resource conn, :post, "/guilds/#{guild_id}/roles", %{name: name, color: color, mentionable: true}
@@ -8,8 +9,17 @@ defmodule ED do
   defp _greet, do: ["Hello!", "Hi!", "Hey!", "Howdy!", "Hiya!", "HeyHi!", "Greetings!"]
   def greet(conn, channel), do: _greet |> Enum.random |> send_message(channel, conn) |> IO.inspect
   
-  defp welcome(client, payload) do
-    payload
+  defp welcome(payload, state) do
+    channels = %{welcome: 317915118060961793}
+    roles = %{visitor: 292739861767782401, member: 235927353832767498}
+  
+    case payload["channel_id"] do
+      channels[:welcome] ->
+        [ guild | _ ] = tate[:guilds]
+        add_member_role state[:rest_client], guild[:guild_id], payload["author"]["id"], roles.visitor
+        delete_message payload["id"], channels[:welcome], state[:rest_client]
+      id -> {:unknown, id}
+    end
   end
   
   defp language_role_help(conn, ch) do
@@ -66,7 +76,7 @@ defmodule ED do
   def handle_event({:message_create, payload}, state) do
     case payload |> DiscordEx.Client.Helpers.MessageHelper.msg_command_parse do
       { "hello", _ } -> greet state[:rest_client], payload[:data]["channel_id"]
-      { "accept", _ } -> welcome state[:rest_client], payload[:data]
+      { "accept", _ } -> welcome payload[:data], state
       { "roles", _ } -> language_role_help state[:rest_client], payload[:data]["channel_id"]
       { "add", "role " <> role } ->
         params = [role, role |> get_role_color, state, payload[:data]]
