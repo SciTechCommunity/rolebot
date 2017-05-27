@@ -10,12 +10,12 @@ defmodule ED do
   def greet(conn, channel), do: _greet |> Enum.random |> send_message(channel, conn) |> IO.inspect
   
   defp welcome(payload, state) do
-    channels = %{welcome: 317915118060961793}
+    channels = [welcome: 317915118060961793]
     roles = %{visitor: 292739861767782401, member: 235927353832767498}
   
     case payload["channel_id"] do
-      channel when channel == channels[:welcome] ->
-        [ guild | _ ] = tate[:guilds]
+      channels[:welcome] ->
+        [ guild | _ ] = state[:guilds]
         add_member_role state[:rest_client], guild[:guild_id], payload["author"]["id"], roles.visitor
         delete_message payload["id"], channels[:welcome], state[:rest_client]
       id -> {:unknown, id}
