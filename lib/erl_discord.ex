@@ -14,7 +14,7 @@ defmodule ED do
     roles = %{visitor: 292739861767782401, member: 235927353832767498}
   
     case payload["channel_id"] do
-      channels[:welcome] ->
+      channel when channel == channels[:welcome] ->
         [ guild | _ ] = tate[:guilds]
         add_member_role state[:rest_client], guild[:guild_id], payload["author"]["id"], roles.visitor
         delete_message payload["id"], channels[:welcome], state[:rest_client]
