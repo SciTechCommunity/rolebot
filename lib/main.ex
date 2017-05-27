@@ -2,11 +2,11 @@ defmodule Main do
   def main(args \\ []) do
     case args do
       [ token | [] ] ->
-        HTTPoison.start
-        {:ok, bot_client } = DiscordEx.Client.start_link(%{
+        DiscordEx.Connections.REST.start
+        {:ok, bot_client } = DiscordEx.Client.start_link %{
           token: "Bot " <> String.trim(token),
           handler: ED
-        })
+        }
         Process.unlink bot_client
         Process.monitor bot_client
         start args
