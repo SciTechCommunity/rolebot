@@ -16,7 +16,7 @@ defmodule ED do
       :welcome ->
         [ guild | _ ] = state[:guilds]
         add_member_role state[:rest_client], guild[:guild_id], payload["author"]["id"], roles(:visitor)
-        delete_message payload["id"], channels[:welcome], state[:rest_client]
+        delete_message payload["id"], payload["channel_id"], state[:rest_client]
       nil -> {:unknown, payload["channel_id"]}
     end
   end
