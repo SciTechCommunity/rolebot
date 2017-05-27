@@ -8,6 +8,10 @@ defmodule ED do
   defp _greet, do: ["Hello!", "Hi!", "Hey!", "Howdy!", "Hiya!", "HeyHi!", "Greetings!"]
   def greet(conn, channel), do: _greet |> Enum.random |> send_message(channel, conn) |> IO.inspect
   
+  defp welcome(payload) do
+    payload
+  end
+  
   defp language_role_help(conn, ch) do
     send_message """
     ***#{_greet()|> Enum.random}***
@@ -62,6 +66,7 @@ defmodule ED do
   def handle_event({:message_create, payload}, state) do
     case payload |> DiscordEx.Client.Helpers.MessageHelper.msg_command_parse do
       { "hello", _ } -> greet state[:rest_client], payload[:data]["channel_id"]
+      { "accept", _ } -> welcome state[:rest_client], payload[:data]
       { "roles", _ } -> language_role_help state[:rest_client], payload[:data]["channel_id"]
       { "add", "role " <> role } ->
         params = [role, role |> get_role_color, state, payload[:data]]
