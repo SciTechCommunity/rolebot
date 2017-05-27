@@ -7,7 +7,7 @@ defmodule ED do
   defp add_new_role(conn, guild_id, name, color), do: DiscordEx.RestClient.resource conn, :post, "/guilds/#{guild_id}/roles", %{name: name, color: color, mentionable: true}
   
   defp _greet, do: ["Hello!", "Hi!", "Hey!", "Howdy!", "Hiya!", "HeyHi!", "Greetings!"]
-  def greet(conn, channel), do: _greet |> Enum.random |> send_message(channel, conn) |> IO.inspect
+  def greet(conn, channel), do: _greet() |> Enum.random |> send_message(channel, conn) |> IO.inspect
   
   defp channels(ch), do: Access.get %{317915118060961793 => :welcome}, ch
   defp roles(r), do: Access.get %{visitor: 292739861767782401, member: 235927353832767498}, r
@@ -21,15 +21,28 @@ defmodule ED do
     end
   end
   
+  defp show_author(conn, ch) do
+    send_message """
+    I was created by the one and only <@249991058132434945>!
+    Check out more of his mediocre code @ https://github.com/ShadowfeindX
+    """, ch, conn
+  end
+  defp show_source(conn, ch) do
+    send_message """
+    You can find my source in our community repository!
+    https://github.com/TumblrCommunity/rolebot
+    """, ch, conn
+  end
+  
   defp language_role_help(conn, ch) do
     send_message """
     ***#{_greet()|> Enum.random}***
     So you want to add a language role?
     It's simple! all you have to do is type
-    `!add role <language>` where language is
+    `@rolebot add lang <language>` where language is
     the language you would like to add!
     You can get a full list of languages @
-    https://github.com/ShadowfeindX/erl_discord
+    https://github.com/TumblrCommunity/rolebot
     """, ch, conn
   end
   
@@ -73,14 +86,21 @@ defmodule ED do
   end
   
   def handle_event({:message_create, payload}, state) do
-    case payload |> DiscordEx.Client.Helpers.MessageHelper.msg_command_parse do
+	client = "<@#{state[:client_id]}>"
+	lang_help = fn -> language_role_help state[:rest_client], payload[:data]["channel_id"] end
+    case payload |> DiscordEx.Client.Helpers.MessageHelper.msg_command_parse("#{client} ") do
       { "hello", _ } -> greet state[:rest_client], payload[:data]["channel_id"]
+  	  { "help", _ } -> lang_help.()
+  	  { "source", _ } -> show_source state[:rest_client], payload[:data]["channel_id"]
+  	  { "author", _ } -> show_author state[:rest_client], payload[:data]["channel_id"]
       { nil, "confirm" } -> welcome payload[:data], state
-      { "roles", _ } -> language_role_help state[:rest_client], payload[:data]["channel_id"]
-      { "add", "role " <> role } ->
-        params = [role, role |> get_role_color, state, payload[:data]]
+      { nil, ^client } -> lang_help.()
+      { nil, msg } -> msg
+      { "add", "lang " <> lang } ->
+        params = [lang, lang |> get_role_color, state, payload[:data]]
         spawn ED, :add_language_role, params
-      other -> other
+      { _unknown, _command } -> lang_help.()
+      _ -> :parse_error
     end |> IO.inspect
     {:ok, state}
   end 
