@@ -9,16 +9,15 @@ defmodule ED do
   defp _greet, do: ["Hello!", "Hi!", "Hey!", "Howdy!", "Hiya!", "HeyHi!", "Greetings!"]
   def greet(conn, channel), do: _greet |> Enum.random |> send_message(channel, conn) |> IO.inspect
   
+  defp channels(ch), do: Access.get %{317915118060961793 => :welcome}, ch
+  defp roles(r), do: Access.get %{visitor: 292739861767782401, member: 235927353832767498}, r
   defp welcome(payload, state) do
-    channels = [welcome: 317915118060961793]
-    roles = %{visitor: 292739861767782401, member: 235927353832767498}
-  
-    case payload["channel_id"] do
-      channels[:welcome] ->
+    case channels payload["channel_id"] do
+      :welcome ->
         [ guild | _ ] = state[:guilds]
-        add_member_role state[:rest_client], guild[:guild_id], payload["author"]["id"], roles.visitor
+        add_member_role state[:rest_client], guild[:guild_id], payload["author"]["id"], roles(:visitor)
         delete_message payload["id"], channels[:welcome], state[:rest_client]
-      id -> {:unknown, id}
+      nil -> {:unknown, payload["channel_id"]}
     end
   end
   
