@@ -12,11 +12,11 @@ defmodule ED do
   defp channels(ch), do: Access.get %{317915118060961793 => :welcome}, ch
   defp roles(r), do: Access.get %{visitor: 292739861767782401, member: 235927353832767498}, r
   defp welcome(payload, state) do
-    case payload["channel_id"] |> channels do
+    case channels payload["channel_id"] do
       :welcome ->
         [ guild | _ ] = state[:guilds]
         add_member_role state[:rest_client], guild[:guild_id], payload["author"]["id"], roles(:visitor)
-        delete_message payload["id"], payload["channel_id"], state[:rest_client]
+        delete_message payload["id"], channels[:welcome], state[:rest_client]
       nil -> {:unknown, payload["channel_id"]}
     end
   end
@@ -75,7 +75,7 @@ defmodule ED do
   def handle_event({:message_create, payload}, state) do
     case payload |> DiscordEx.Client.Helpers.MessageHelper.msg_command_parse do
       { "hello", _ } -> greet state[:rest_client], payload[:data]["channel_id"]
-      { "accept", _ } -> welcome payload[:data], state
+      { nil, "confirm" } -> welcome payload[:data], state
       { "roles", _ } -> language_role_help state[:rest_client], payload[:data]["channel_id"]
       { "add", "role " <> role } ->
         params = [role, role |> get_role_color, state, payload[:data]]
