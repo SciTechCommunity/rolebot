@@ -50,7 +50,9 @@ defmodule ED do
     format = fn x -> x |> URI.encode_www_form |> String.upcase |> String.to_atom end
     color = case Process.get :colors do
       colors when is_map(colors) ->
-        {:ok, colors |> Map.get format.(role)}
+      	_color = colors |> Map.get format.(role)
+	IO.inspect _color
+        {:ok, _color}
       _ -> :error
     end
     color
