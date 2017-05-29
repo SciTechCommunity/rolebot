@@ -4,7 +4,7 @@ defmodule Main do
       [ token | [] ] ->
         DiscordEx.Connections.REST.start
         {:ok, bot_client } = DiscordEx.Client.start_link %{
-          token: "Bot " <> String.trim(token),
+          token: token |> String.trim,
           handler: ED
         }
         Process.unlink bot_client

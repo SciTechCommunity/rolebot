@@ -46,17 +46,10 @@ defmodule ED do
     """, ch, conn
   end
   
-  defp get_colors do
-    { colors, _ } = Code.eval_file "colors.exs", "lib"
-    colors
-  end
   defp get_role_color(role) do
     format = fn x -> x |> URI.encode_www_form |> String.upcase |> String.to_atom end
     color = case Process.get :colors do
-      nil ->
-        Process.put :colors, get_colors()
-        get_role_color role
-      colors when Kernel.is_map(colors) ->
+      colors when is_map(colors) ->
         {:ok, colors |> Map.get format.(role)}
       _ -> :error
     end
@@ -85,14 +78,22 @@ defmodule ED do
     end
   end
   
+  def handle_event({:guild_create, payload}, state) do
+	DiscordEx.Client.status_update state, %{game_name: "The gift of language"}
+	{ colors, _ } = Code.eval_file "colors.exs", "lib"
+	Process.put :colors, colors
+	payload |> IO.inspect
+	{:ok, state}
+  end
   def handle_event({:message_create, payload}, state) do
-	client = "<@#{state[:client_id]}>"
+	client = "<@#{state[:client_id]}>"	
+	IO.inspect client
 	lang_help = fn -> language_role_help state[:rest_client], payload[:data]["channel_id"] end
     case payload |> DiscordEx.Client.Helpers.MessageHelper.msg_command_parse("#{client} ") do
       { "hello", _ } -> greet state[:rest_client], payload[:data]["channel_id"]
-  	  { "help", _ } -> lang_help.()
-  	  { "source", _ } -> show_source state[:rest_client], payload[:data]["channel_id"]
-  	  { "author", _ } -> show_author state[:rest_client], payload[:data]["channel_id"]
+      { "help", _ } -> lang_help.()
+      { "source", _ } -> show_source state[:rest_client], payload[:data]["channel_id"]
+      { "author", _ } -> show_author state[:rest_client], payload[:data]["channel_id"]
       { nil, "confirm" } -> welcome payload[:data], state
       { nil, ^client } -> lang_help.()
       { nil, msg } -> msg
