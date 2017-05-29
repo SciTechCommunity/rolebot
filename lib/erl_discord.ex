@@ -87,7 +87,6 @@ defmodule ED do
   end
   def handle_event({:message_create, payload}, state) do
 	client = "<@#{state[:client_id]}>"	
-	IO.inspect client
 	lang_help = fn -> language_role_help state[:rest_client], payload[:data]["channel_id"] end
     case payload |> DiscordEx.Client.Helpers.MessageHelper.msg_command_parse("#{client} ") do
       { "hello", _ } -> greet state[:rest_client], payload[:data]["channel_id"]
