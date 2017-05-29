@@ -47,12 +47,10 @@ defmodule ED do
   end
   
   defp get_role_color(role) do
-    format = fn x -> x |> URI.encode_www_form |> String.upcase |> String.to_atom end
+    format = fn x -> x |> URI.encode(&(&1 != ?\s and &1 != ?+ and &1 != ?#)) |> String.upcase |> String.to_atom end
     color = case Process.get :colors do
       colors when is_map(colors) ->
-      	_color = colors |> Map.get format.(role)
-	IO.inspect _color
-        {:ok, _color}
+        {:ok, colors |> Map.get format.(role)}
       _ -> :error
     end
     color

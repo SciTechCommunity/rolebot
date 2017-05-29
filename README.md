@@ -56,7 +56,7 @@ EAGLE
 EIFFEL                             
 ELIXIR                             
 ELM                                
-EMACS LISP                       
+EMACS                       
 EMBERSCRIPT                        
 ERLANG                             
 F#                               
@@ -100,6 +100,7 @@ LLVM
 LOLCODE                            
 LSL                                
 LASSO                              
+LADDER LOGIC
 LEX                                
 LIVESCRIPT                         
 LOOKML                             
@@ -201,7 +202,7 @@ UNREALSCRIPT
 VHDL                               
 VALA                               
 VERILOG                            
-VIM SCRIPT                       
+VIM                       
 VISUAL BASIC                     
 VOLT                               
 VUE                                
