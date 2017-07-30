@@ -8,15 +8,19 @@ defmodule ED do
   
   defp _greet, do: ["Hello!", "Hi!", "Hey!", "Howdy!", "Hiya!", "HeyHi!", "Greetings!"]
   def greet(conn, channel), do: _greet() |> Enum.random |> send_message(channel, conn) |> IO.inspect
+  def greet_member(conn, member), do: _greet() |> Enum.random |> fn msg -> "#{msg} <@#{member}>" end . () |> send_message(channel_by_name(:general), conn) |> IO.inspect
   
-  defp channels(ch), do: Access.get %{317915118060961793 => :welcome}, ch
+  defp channel_by_id(ch), do: Access.get %{317915118060961793 => :welcome}, ch
+  defp channel_by_name(ch), do: Access.get %{general: 232641658712358912}, ch
   defp roles(r), do: Access.get %{visitor: 292739861767782401, member: 235927353832767498}, r
+
   defp welcome(payload, state) do
-    case channels payload["channel_id"] do
+    case channel_by_id payload["channel_id"] do
       :welcome ->
         [ guild | _ ] = state[:guilds]
         add_member_role state[:rest_client], guild[:guild_id], payload["author"]["id"], roles(:visitor)
         delete_message payload["id"], payload["channel_id"], state[:rest_client]
+        greet_member state[:rest_client], payload["author"]["id"]
       nil -> {:unknown, payload["channel_id"]}
     end
   end
@@ -27,6 +31,7 @@ defmodule ED do
     Check out more of his mediocre code @ https://github.com/ShadowfeindX
     """, ch, conn
   end
+
   defp show_source(conn, ch) do
     send_message """
     You can find my source in our community repository!
@@ -50,7 +55,7 @@ defmodule ED do
     format = fn x -> x |> URI.encode(&(&1 != ?\s and &1 != ?+ and &1 != ?#)) |> String.upcase |> String.to_atom end
     color = case Process.get :colors do
       colors when is_map(colors) ->
-        {:ok, colors |> Map.get format.(role)}
+        {:ok, colors |> Map.get(format.(role))}
       _ -> :error
     end
     color
