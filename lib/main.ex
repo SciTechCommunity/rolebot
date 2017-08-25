@@ -16,11 +16,9 @@ defmodule Main do
   end
   defp start(args) do
     receive do
-      {:DOWN, _ref, _type, _pid, _info} ->
-        IO.inspect {_ref, _type, _pid, _info}
-        main args
-      e -> IO.inspect e
+      e ->
+        IO.inspect e
     end
-    start args
+    main args
   end
 end
